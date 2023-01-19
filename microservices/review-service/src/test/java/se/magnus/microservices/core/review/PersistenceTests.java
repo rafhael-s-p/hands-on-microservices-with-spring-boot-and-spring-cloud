@@ -57,7 +57,7 @@ public class PersistenceTests {
         repository.save(savedEntity);
 
         ReviewEntity foundEntity = repository.findById(savedEntity.getId()).get();
-        assertEquals(1, (long)foundEntity.getVersion());
+        assertEquals(1, foundEntity.getVersion());
         assertEquals("a2", foundEntity.getAuthor());
     }
 

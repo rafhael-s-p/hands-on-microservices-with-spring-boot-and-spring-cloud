@@ -5,21 +5,29 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.stream.messaging.Sink;
 import org.springframework.http.HttpStatus;
+import org.springframework.integration.channel.AbstractMessageChannel;
+import org.springframework.messaging.MessagingException;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import se.magnus.api.core.product.Product;
 import se.magnus.api.core.review.Review;
+import se.magnus.api.event.Event;
 import se.magnus.microservices.core.review.persistence.ReviewRepository;
+import se.magnus.util.exceptions.InvalidInputException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static reactor.core.publisher.Mono.just;
+import static se.magnus.api.event.Event.Type.CREATE;
+import static se.magnus.api.event.Event.Type.DELETE;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT,
-        properties = {"spring.datasource.url=jdbc:h2:mem:review-db"})
+@SpringBootTest(webEnvironment=RANDOM_PORT, properties = {"logging.level.se.magnus=DEBUG","spring.datasource.url=jdbc:h2:mem:review-db"})
 public class ReviewServiceApplicationTests {
 
     @Autowired
@@ -28,8 +36,14 @@ public class ReviewServiceApplicationTests {
     @Autowired
     private ReviewRepository repository;
 
+    @Autowired
+    private Sink channels;
+
+    private AbstractMessageChannel input = null;
+
     @Before
     public void setupDb() {
+        input = (AbstractMessageChannel) channels.input();
         repository.deleteAll();
     }
 
@@ -40,9 +54,9 @@ public class ReviewServiceApplicationTests {
 
         assertEquals(0, repository.findByProductId(productId).size());
 
-        postAndVerifyReview(productId, 1, OK);
-        postAndVerifyReview(productId, 2, OK);
-        postAndVerifyReview(productId, 3, OK);
+        sendCreateReviewEvent(productId, 1);
+        sendCreateReviewEvent(productId, 2);
+        sendCreateReviewEvent(productId, 3);
 
         assertEquals(3, repository.findByProductId(productId).size());
 
@@ -60,15 +74,21 @@ public class ReviewServiceApplicationTests {
 
         assertEquals(0, repository.count());
 
-        postAndVerifyReview(productId, reviewId, OK)
-                .jsonPath("$.productId").isEqualTo(productId)
-                .jsonPath("$.reviewId").isEqualTo(reviewId);
+        sendCreateReviewEvent(productId, reviewId);
 
         assertEquals(1, repository.count());
 
-        postAndVerifyReview(productId, reviewId, UNPROCESSABLE_ENTITY)
-                .jsonPath("$.path").isEqualTo("/review")
-                .jsonPath("$.message").isEqualTo("Duplicate key, Product Id: 1, Review Id:1");
+        try {
+            sendCreateReviewEvent(productId, reviewId);
+            fail("Expected a MessagingException here!");
+        } catch (MessagingException me) {
+            if (me.getCause() instanceof InvalidInputException)	{
+                InvalidInputException iie = (InvalidInputException)me.getCause();
+                assertEquals("Duplicate key, Product Id: 1, Review Id:1", iie.getMessage());
+            } else {
+                fail("Expected a InvalidInputException as the root cause!");
+            }
+        }
 
         assertEquals(1, repository.count());
     }
@@ -77,15 +97,15 @@ public class ReviewServiceApplicationTests {
     public void deleteReviews() {
 
         int productId = 1;
-        int recommendationId = 1;
+        int reviewId = 1;
 
-        postAndVerifyReview(productId, recommendationId, OK);
+        sendCreateReviewEvent(productId, reviewId);
         assertEquals(1, repository.findByProductId(productId).size());
 
-        deleteAndVerifyReviewsByProductId(productId, OK);
+        sendDeleteReviewEvent(productId);
         assertEquals(0, repository.findByProductId(productId).size());
 
-        deleteAndVerifyReviewsByProductId(productId, OK);
+        sendDeleteReviewEvent(productId);
     }
 
     @Test
@@ -135,25 +155,14 @@ public class ReviewServiceApplicationTests {
                 .expectBody();
     }
 
-    private WebTestClient.BodyContentSpec postAndVerifyReview(int productId, int reviewId, HttpStatus expectedStatus) {
+    private void sendCreateReviewEvent(int productId, int reviewId) {
         Review review = new Review(productId, reviewId, "Author " + reviewId, "Subject " + reviewId, "Content " + reviewId, "SA");
-        return client.post()
-                .uri("/review")
-                .body(just(review), Review.class)
-                .accept(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isEqualTo(expectedStatus)
-                .expectHeader().contentType(APPLICATION_JSON)
-                .expectBody();
+        Event<Integer, Product> event = new Event(CREATE, productId, review);
+        input.send(new GenericMessage<>(event));
     }
 
-    private WebTestClient.BodyContentSpec deleteAndVerifyReviewsByProductId(int productId, HttpStatus expectedStatus) {
-        return client.delete()
-                .uri("/review?productId=" + productId)
-                .accept(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isEqualTo(expectedStatus)
-                .expectBody();
+    private void sendDeleteReviewEvent(int productId) {
+        Event<Integer, Product> event = new Event(DELETE, productId, null);
+        input.send(new GenericMessage<>(event));
     }
-
 }
