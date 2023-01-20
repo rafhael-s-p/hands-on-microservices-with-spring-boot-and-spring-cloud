@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
 # ./gradelw clean build
-# docker-compose build
-# docker-compose up -d
+# docker compose build
+# docker compose up -d
 #
 # Sample usage:
 #
@@ -181,10 +181,10 @@ echo "PORT=${PORT}"
 if [[ $@ == *"start"* ]]
 then
     echo "Restarting the test environment..."
-    echo "$ docker-compose down --remove-orphans"
-    docker-compose down --remove-orphans
-    echo "$ docker-compose up -d"
-    docker-compose up -d
+    echo "$ docker compose down --remove-orphans"
+    docker compose down --remove-orphans
+    echo "$ docker compose up -d"
+    docker compose up -d
 fi
 
 waitForService curl http://$HOST:$PORT/actuator/health
@@ -227,6 +227,6 @@ echo "End, all tests OK:" `date`
 if [[ $@ == *"stop"* ]]
 then
     echo "Stopping the test environment..."
-    echo "$ docker-compose down --remove-orphans"
-    docker-compose down --remove-orphans
+    echo "$ docker compose down --remove-orphans"
+    docker compose down --remove-orphans
 fi
