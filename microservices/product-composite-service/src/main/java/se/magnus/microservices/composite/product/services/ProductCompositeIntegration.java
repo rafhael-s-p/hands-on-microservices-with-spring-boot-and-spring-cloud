@@ -40,8 +40,9 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     private final String productServiceUrl = "http://product";
     private final String recommendationServiceUrl = "http://recommendation";
     private final String reviewServiceUrl = "http://review";
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
     private final ObjectMapper mapper;
+    private WebClient webClient;
     private MessageSources messageSources;
 
     public interface MessageSources {
@@ -62,12 +63,12 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
 
     @Autowired
     public ProductCompositeIntegration(
-            WebClient.Builder webClient,
+            WebClient.Builder webClientBuilder,
             ObjectMapper mapper,
             MessageSources messageSources
     ) {
 
-        this.webClient = webClient.build();
+        this.webClientBuilder = webClientBuilder;
         this.mapper = mapper;
         this.messageSources = messageSources;
     }
@@ -158,16 +159,11 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
                 .send(MessageBuilder.withPayload(new Event(DELETE, productId, null)).build());
     }
 
-    public Mono<Health> getProductHealth() {
-        return getHealth(productServiceUrl);
-    }
-
-    public Mono<Health> getRecommendationHealth() {
-        return getHealth(recommendationServiceUrl);
-    }
-
-    public Mono<Health> getReviewHealth() {
-        return getHealth(reviewServiceUrl);
+    private WebClient getWebClient() {
+        if (webClient == null) {
+            webClient = webClientBuilder.build();
+        }
+        return webClient;
     }
 
     private Mono<Health> getHealth(String url) {
