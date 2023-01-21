@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.messaging.MessageChannel;
@@ -86,7 +85,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         String url = productServiceUrl + "/product/" + productId;
         LOG.debug("Will call the getProduct API on URL: {}", url);
 
-        return webClient.get()
+        return getWebClient().get()
                 .uri(url)
                 .retrieve()
                 .bodyToMono(Product.class)
@@ -116,7 +115,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         LOG.debug("Will call the getRecommendations API on URL: {}", url);
 
         // Return an empty result if something goes wrong to make it possible for the composite service to return partial responses
-        return webClient.get()
+        return getWebClient().get()
                 .uri(url)
                 .retrieve()
                 .bodyToFlux(Recommendation.class)
@@ -145,7 +144,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         LOG.debug("Will call the getReviews API on URL: {}", url);
 
         // Return an empty result if something goes wrong to make it possible for the composite service to return partial responses
-        return webClient.get()
+        return getWebClient().get()
                 .uri(url)
                 .retrieve()
                 .bodyToFlux(Review.class)
@@ -164,15 +163,6 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
             webClient = webClientBuilder.build();
         }
         return webClient;
-    }
-
-    private Mono<Health> getHealth(String url) {
-        url += "/actuator/health";
-        LOG.debug("Will call the Health API on URL: {}", url);
-        return webClient.get().uri(url).retrieve().bodyToMono(String.class)
-                .map(s -> new Health.Builder().up().build())
-                .onErrorResume(ex -> Mono.just(new Health.Builder().down(ex).build()))
-                .log();
     }
 
     private Throwable handleException(Throwable ex) {
