@@ -1,15 +1,12 @@
 package se.magnus.microservices.composite.product;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.actuate.health.HealthAggregator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.reactive.function.client.WebClient;
-import se.magnus.microservices.composite.product.services.ProductCompositeIntegration;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
@@ -70,12 +67,6 @@ public class ProductCompositeServiceApplication {
                         emptyList()
                 ));
     }
-
-    @Autowired
-    HealthAggregator healthAggregator;
-
-    @Autowired
-    ProductCompositeIntegration integration;
 
     @Bean
     @LoadBalanced
