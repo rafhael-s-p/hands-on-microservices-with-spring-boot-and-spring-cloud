@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
-@DataMongoTest
+@DataMongoTest(properties = {"spring.cloud.config.enabled=false"})
 public class PersistenceTests {
 
     @Autowired

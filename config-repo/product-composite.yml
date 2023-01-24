@@ -20,28 +20,15 @@ api:
       notes: |
         # Normal response
         If the requested product id is found the method will return information regarding:
-        1. Base product information
+        1. Product information
         1. Reviews
         1. Recommendations
-        1. Service Addresses\n(technical information regarding the addresses of the microservices that created the response)
+        1. Service Addresses
+        (technical information regarding the addresses of the microservices that created the response)
 
         # Expected partial and error responses
-        In the following cases, only a partial response be created (used to simplify testing of error conditions)
-
-        ## Product id 113
-        200 - Ok, but no recommendations will be returned
-
-        ## Product id 213
-        200 - Ok, but no reviews will be returned
-
-        ## Non numerical product id
-        400 - A <b>Bad Request</b> error will be returned
-
-        ## Product id 13
-        404 - A <b>Not Found</b> error will be returned
-
-        ## Negative product ids
-        422 - An <b>Unprocessable Entity</b> error will be returned
+        1. If no product information is found, a <b>404 - Not Found</b> error will be returned
+        1. In no recommendations or reviews are found for a product, a partial response will be returned
 
     create-composite-product:
       description: Creates a composite product
@@ -64,24 +51,6 @@ api:
 server.port: 7000
 server.error.include-message: always
 
-spring.application.name: product-composite
-
-app:
-  eureka-username: u
-  eureka-password: p
-  eureka-server: localhost
-  auth-server: localhost
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: "http://${app.eureka-username}:${app.eureka-password}@${app.eureka-server}:8761/eureka/"
-    initialInstanceInfoReplicationIntervalSeconds: 5
-    registryFetchIntervalSeconds: 5
-  instance:
-    leaseRenewalIntervalInSeconds: 5
-    leaseExpirationDurationInSeconds: 5
-
 ribbon.ServerListRefreshInterval: 5000
 
 ribbon.NFLoadBalancerPingInterval: 5
@@ -103,16 +72,6 @@ spring.cloud.stream:
       producer:
         required-groups: auditGroup
 
-spring.cloud.stream.kafka.binder:
-  brokers: 127.0.0.1
-  defaultBrokerPort: 9092
-
-spring.rabbitmq:
-  host: 127.0.0.1
-  port: 5672
-  username: guest
-  password: guest
-
 spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://${app.auth-server}:9999/.well-known/jwks.json
 
 logging:
@@ -121,18 +80,28 @@ logging:
     se.magnus: DEBUG
     org.springframework.web.server.adapter.HttpWebHandlerAdapter: TRACE
 
-management.endpoint.health.show-details: "ALWAYS"
-
-management.endpoints.web.exposure.include: "*"
 ---
 spring.profiles: docker
 
 server.port: 8080
 
-spring.rabbitmq.host: rabbitmq
+---
+spring.profiles: streaming_partitioned
 
-spring.cloud.stream.kafka.binder.brokers: kafka
+spring.cloud.stream.bindings.output-products.producer:
+  partition-key-expression: payload.key
+  partition-count: 2
 
-app:
-  eureka-server: eureka
-  auth-server: auth-server
+spring.cloud.stream.bindings.output-recommendations.producer:
+  partition-key-expression: payload.key
+  partition-count: 2
+
+spring.cloud.stream.bindings.output-reviews.producer:
+  partition-key-expression: payload.key
+  partition-count: 2
+
+---
+spring.profiles: kafka
+
+management.health.rabbit.enabled: false
+spring.cloud.stream.defaultBinder: kafka
