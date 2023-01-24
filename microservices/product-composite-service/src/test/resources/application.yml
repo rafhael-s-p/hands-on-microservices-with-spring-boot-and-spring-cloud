@@ -12,3 +12,5 @@ api:
       name:
       url:
       email:
+
+app.product-service.timeoutSec: 2

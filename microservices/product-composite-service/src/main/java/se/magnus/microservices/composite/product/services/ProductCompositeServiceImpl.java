@@ -1,5 +1,6 @@
 package se.magnus.microservices.composite.product.services;
 
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import se.magnus.api.composite.product.*;
 import se.magnus.api.core.product.Product;
 import se.magnus.api.core.recommendation.Recommendation;
 import se.magnus.api.core.review.Review;
+import se.magnus.util.exceptions.NotFoundException;
 import se.magnus.util.http.ServiceUtil;
 
 import java.net.URL;
@@ -75,12 +77,13 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     }
 
     @Override
-    public Mono<ProductAggregate> getCompositeProduct(int productId) {
+    public Mono<ProductAggregate> getCompositeProduct(int productId, int delay, int faultPercent) {
 
         return Mono.zip(
                         values -> createProductAggregate((SecurityContext) values[0], (Product) values[1], (List<Recommendation>) values[2], (List<Review>) values[3], serviceUtil.getServiceAddress()),
                         ReactiveSecurityContextHolder.getContext().defaultIfEmpty(nullSC),
-                        integration.getProduct(productId),
+                        integration.getProduct(productId, delay, faultPercent)
+                                .onErrorReturn(CallNotPermittedException.class, getProductFallbackValue(productId)),
                         integration.getRecommendations(productId).collectList(),
                         integration.getReviews(productId).collectList())
                 .doOnError(ex -> LOG.warn("getCompositeProduct failed: {}", ex.toString()))
@@ -110,6 +113,19 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
             LOG.warn("deleteCompositeProduct failed: {}", re.toString());
             throw re;
         }
+    }
+
+    private Product getProductFallbackValue(int productId) {
+
+        LOG.warn("Creating a fallback product for productId = {}", productId);
+
+        if (productId == 13) {
+            String errMsg = "Product Id: " + productId + " not found in fallback cache!";
+            LOG.warn(errMsg);
+            throw new NotFoundException(errMsg);
+        }
+
+        return new Product(productId, "Fallback product" + productId, productId, serviceUtil.getServiceAddress());
     }
 
     private ProductAggregate createProductAggregate(SecurityContext sc, Product product, List<Recommendation> recommendations, List<Review> reviews, String serviceAddress) {

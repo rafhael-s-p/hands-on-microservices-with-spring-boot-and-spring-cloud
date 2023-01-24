@@ -12,10 +12,10 @@ public interface ProductCompositeService {
 
     /**
      * Sample usage:
-     *
+     * <p>
      * curl -X POST $HOST:$PORT/product-composite \
-     *   -H "Content-Type: application/json" --data \
-     *   '{"productId":123,"name":"product 123","weight":123}'
+     * -H "Content-Type: application/json" --data \
+     * '{"productId":123,"name":"product 123","weight":123}'
      *
      * @param body
      */
@@ -27,7 +27,7 @@ public interface ProductCompositeService {
             @ApiResponse(code = 422, message = "Unprocessable entity, input parameters caused the processing to fail. See response message for more information.")
     })
     @PostMapping(
-            value    = "/product-composite",
+            value = "/product-composite",
             consumes = "application/json")
     Mono<Void> createCompositeProduct(@RequestBody ProductAggregate body);
 
@@ -46,13 +46,16 @@ public interface ProductCompositeService {
             @ApiResponse(code = 422, message = "Unprocessable entity, input parameters caused the processing to fails. See response message for more information.")
     })
     @GetMapping(
-        value    = "/product-composite/{productId}",
-        produces = "application/json")
-    Mono<ProductAggregate> getCompositeProduct(@PathVariable int productId);
+            value = "/product-composite/{productId}",
+            produces = "application/json")
+    Mono<ProductAggregate> getCompositeProduct(
+            @PathVariable int productId,
+            @RequestParam(value = "delay", required = false, defaultValue = "0") int delay,
+            @RequestParam(value = "faultPercent", required = false, defaultValue = "0") int faultPercent);
 
     /**
      * Sample usage:
-     *
+     * <p>
      * curl -X DELETE $HOST:$PORT/product-composite/1
      *
      * @param productId
