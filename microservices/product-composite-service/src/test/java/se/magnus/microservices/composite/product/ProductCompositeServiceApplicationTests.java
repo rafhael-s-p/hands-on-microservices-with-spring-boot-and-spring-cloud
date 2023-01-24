@@ -27,7 +27,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT,
         classes = {ProductCompositeServiceApplication.class, TestSecurityConfig.class},
-        properties = {"spring.main.allow-bean-definition-overriding=true", "eureka.client.enabled=false"})
+        properties = {"spring.main.allow-bean-definition-overriding=true",
+                "eureka.client.enabled=false",
+                "spring.cloud.config.enabled=false"})
 public class ProductCompositeServiceApplicationTests {
 
     private static final int PRODUCT_ID_OK = 1;

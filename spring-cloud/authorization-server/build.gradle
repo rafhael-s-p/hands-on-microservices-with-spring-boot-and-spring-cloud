@@ -31,6 +31,9 @@ dependencies {
 
 	implementation "org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.3.1.RELEASE"
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:2.2.3.RELEASE'
+	implementation 'org.springframework.cloud:spring-cloud-starter-config:2.2.3.RELEASE'
+
+	implementation 'org.springframework.retry:spring-retry'
 
 	implementation 'com.nimbusds:nimbus-jose-jwt:6.7'
 
