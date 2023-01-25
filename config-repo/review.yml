@@ -58,9 +58,3 @@ spring.cloud.stream.bindings.input.consumer.instanceIndex: 0
 ---
 spring.profiles: streaming_instance_1
 spring.cloud.stream.bindings.input.consumer.instanceIndex: 1
-
----
-spring.profiles: kafka
-
-management.health.rabbit.enabled: false
-spring.cloud.stream.defaultBinder: kafka

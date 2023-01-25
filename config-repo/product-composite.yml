@@ -124,9 +124,3 @@ spring.cloud.stream.bindings.output-recommendations.producer:
 spring.cloud.stream.bindings.output-reviews.producer:
   partition-key-expression: payload.key
   partition-count: 2
-
----
-spring.profiles: kafka
-
-management.health.rabbit.enabled: false
-spring.cloud.stream.defaultBinder: kafka
