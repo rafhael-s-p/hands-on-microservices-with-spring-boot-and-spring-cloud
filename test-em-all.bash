@@ -14,6 +14,7 @@
 : ${PROD_ID_NOT_FOUND=13}
 : ${PROD_ID_NO_RECS=114}
 : ${PROD_ID_NO_REVS=214}
+: ${NAMESPACE=hands-on}
 
 function assertCurl() {
 
@@ -57,7 +58,7 @@ function assertEqual() {
 
 function testUrl() {
     url=$@
-    if $url -ks -f -o /dev/null
+    if $url --connect-timeout 2 --max-time 10 -ks -f -o /dev/null
     then
           return 0
     else
@@ -176,10 +177,25 @@ function testCircuitBreaker() {
 
     echo "Start Circuit Breaker tests!"
 
-    EXEC="docker run --rm -it --network=my-network alpine"
+    # Assume we are using Docker Compose if we are running on localhost, otherwise Kubernetes
+    if [ "$HOST" = "localhost" ]
+    then
+        EXEC="docker run --rm -it --network=my-network alpine"
+    else
+        echo "Restarting alpine-client..."
+        local ns=$NAMESPACE
+        if kubectl -n $ns get pod alpine-client > /dev/null ; then
+            kubectl -n $ns delete pod alpine-client --grace-period=1
+        fi
+        kubectl -n $ns run --restart=Never alpine-client --image=alpine --command -- sleep 600
+        echo "Waiting for alpine-client to be ready..."
+        kubectl -n $ns wait --for=condition=Ready pod/alpine-client
+
+        EXEC="kubectl -n $ns exec alpine-client --"
+    fi
 
     # First, use the health - endpoint to verify that the circuit breaker is closed
-    assertEqual "CLOSED" "$($EXEC wget product-composite:8080/actuator/health -qO - | jq -r .components.circuitBreakers.details.product.details.state)"
+    assertEqual "CLOSED" "$($EXEC wget product-composite/actuator/health -qO - | jq -r .components.circuitBreakers.details.product.details.state)"
 
     # Open the circuit breaker by running three slow calls in a row, i.e. that cause a timeout exception
     # Also, verify that we get 500 back and a timeout related error message
@@ -207,7 +223,7 @@ function testCircuitBreaker() {
     sleep 10
 
     # Verify that the circuit breaker is in half open state
-    assertEqual "HALF_OPEN" "$($EXEC wget product-composite:8080/actuator/health -qO - | jq -r .components.circuitBreakers.details.product.details.state)"
+    assertEqual "HALF_OPEN" "$($EXEC wget product-composite/actuator/health -qO - | jq -r .components.circuitBreakers.details.product.details.state)"
 
     # Close the circuit breaker by running three normal calls in a row
     # Also, verify that we get 200 back and a response based on information in the product database
@@ -218,12 +234,18 @@ function testCircuitBreaker() {
     done
 
     # Verify that the circuit breaker is in closed state again
-    assertEqual "CLOSED" "$($EXEC wget product-composite:8080/actuator/health -qO - | jq -r .components.circuitBreakers.details.product.details.state)"
+    assertEqual "CLOSED" "$($EXEC wget product-composite/actuator/health -qO - | jq -r .components.circuitBreakers.details.product.details.state)"
 
     # Verify that the expected state transitions happened in the circuit breaker
-    assertEqual "CLOSED_TO_OPEN"      "$($EXEC wget product-composite:8080/actuator/circuitbreakerevents/product/STATE_TRANSITION -qO - | jq -r .circuitBreakerEvents[-3].stateTransition)"
-    assertEqual "OPEN_TO_HALF_OPEN"   "$($EXEC wget product-composite:8080/actuator/circuitbreakerevents/product/STATE_TRANSITION -qO - | jq -r .circuitBreakerEvents[-2].stateTransition)"
-    assertEqual "HALF_OPEN_TO_CLOSED" "$($EXEC wget product-composite:8080/actuator/circuitbreakerevents/product/STATE_TRANSITION -qO - | jq -r .circuitBreakerEvents[-1].stateTransition)"
+    assertEqual "CLOSED_TO_OPEN"      "$($EXEC wget product-composite/actuator/circuitbreakerevents/product/STATE_TRANSITION -qO - | jq -r .circuitBreakerEvents[-3].stateTransition)"
+    assertEqual "OPEN_TO_HALF_OPEN"   "$($EXEC wget product-composite/actuator/circuitbreakerevents/product/STATE_TRANSITION -qO - | jq -r .circuitBreakerEvents[-2].stateTransition)"
+    assertEqual "HALF_OPEN_TO_CLOSED" "$($EXEC wget product-composite/actuator/circuitbreakerevents/product/STATE_TRANSITION -qO - | jq -r .circuitBreakerEvents[-1].stateTransition)"
+
+    # Shutdown the client pod if we are using Kubernetes, i.e. not runnig on localhost.
+    if [ "$HOST" != "localhost" ]
+    then
+        kubectl -n $ns delete pod alpine-client --grace-period=1
+    fi
 }
 
 set -e
