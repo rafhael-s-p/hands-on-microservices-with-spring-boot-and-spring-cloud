@@ -24,7 +24,6 @@ dependencies {
 	implementation('org.springframework.security:spring-security-oauth2-jose')
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
-	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 	implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
 	implementation 'org.springframework.cloud:spring-cloud-starter-zipkin'
 	implementation 'org.springframework.cloud:spring-cloud-starter-stream-rabbit'

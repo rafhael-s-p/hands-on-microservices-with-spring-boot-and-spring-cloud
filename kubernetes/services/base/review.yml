@@ -17,11 +17,15 @@ spec:
         image: hands-on/review-service
         imagePullPolicy: Never
         env:
-          - name: SPRING_PROFILES_ACTIVE
-            value: "docker"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "docker"
+        - name: SPRING_CONFIG_LOCATION
+          value: file:/config-repo/application.yml,file:/config-repo/review.yml
         envFrom:
-          - secretRef:
-              name: config-client-credentials
+        - secretRef:
+            name: rabbitmq-credentials
+        - secretRef:
+            name: mysql-credentials
         ports:
         - containerPort: 80
         resources:
@@ -47,6 +51,13 @@ spec:
           timeoutSeconds: 2
           failureThreshold: 3
           successThreshold: 1
+        volumeMounts:
+        - name: config-repo-volume
+          mountPath: /config-repo
+      volumes:
+      - name: config-repo-volume
+        configMap:
+          name: config-repo-review
 ---
 apiVersion: v1
 kind: Service

@@ -9,8 +9,12 @@ services:
       - my-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/product.yml
+      - SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE=admin
+      - SPRING_DATA_MONGODB_USERNAME=${MONGODB_USR}
+      - SPRING_DATA_MONGODB_PASSWORD=${MONGODB_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
     depends_on:
       - kafka
       - mongodb
@@ -23,8 +27,12 @@ services:
       - my-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/product.yml
+      - SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE=admin
+      - SPRING_DATA_MONGODB_USERNAME=${MONGODB_USR}
+      - SPRING_DATA_MONGODB_PASSWORD=${MONGODB_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
     depends_on:
       - kafka
       - mongodb
@@ -37,8 +45,12 @@ services:
       - my-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/recommendation.yml
+      - SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE=admin
+      - SPRING_DATA_MONGODB_USERNAME=${MONGODB_USR}
+      - SPRING_DATA_MONGODB_PASSWORD=${MONGODB_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
     depends_on:
       - kafka
       - mongodb
@@ -51,8 +63,12 @@ services:
       - my-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/recommendation.yml
+      - SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE=admin
+      - SPRING_DATA_MONGODB_USERNAME=${MONGODB_USR}
+      - SPRING_DATA_MONGODB_PASSWORD=${MONGODB_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
     depends_on:
       - kafka
       - mongodb
@@ -65,8 +81,11 @@ services:
       - my-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/review.yml
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USR}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
     depends_on:
       mysql:
         condition: service_healthy
@@ -81,8 +100,11 @@ services:
       - my-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/review.yml
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USR}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
     depends_on:
       mysql:
         condition: service_healthy
@@ -97,8 +119,9 @@ services:
       - my-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,kafka
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/product-composite.yml
+    volumes:
+      - $PWD/config-repo:/config-repo
     depends_on:
       - kafka
 
@@ -112,8 +135,10 @@ services:
       - "8443:8443"
     environment:
       - SPRING_PROFILES_ACTIVE=docker,kafka
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/gateway.yml
+      - SERVER_SSL_KEY_STORE_PASSWORD=${GATEWAY_TLS_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
 
   auth-server:
     build: spring-cloud/authorization-server
@@ -123,20 +148,7 @@ services:
       - my-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker,kafka
-      - CONFIG_SERVER_USR=${CONFIG_SERVER_USR}
-      - CONFIG_SERVER_PWD=${CONFIG_SERVER_PWD}
-
-  config-server:
-    build: spring-cloud/config-server
-    image: hands-on/config-server
-    mem_limit: 350m
-    networks:
-      - my-network
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker,native
-      - ENCRYPT_KEY=${CONFIG_SERVER_ENCRYPT_KEY}
-      - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
-      - SPRING_SECURITY_USER_PASSWORD=${CONFIG_SERVER_PWD}
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/auth-server.yml
     volumes:
       - $PWD/config-repo:/config-repo
 
@@ -149,6 +161,9 @@ services:
     ports:
       - "27017:27017"
     command: mongod --smallfiles
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USR}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PWD}
     healthcheck:
       test: "mongo --eval 'db.stats().ok'"
       interval: 20s
@@ -164,12 +179,12 @@ services:
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=rootpwd
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PWD}
       - MYSQL_DATABASE=review-db
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=pwd
+      - MYSQL_USER=${MYSQL_USR}
+      - MYSQL_PASSWORD=${MYSQL_PWD}
     healthcheck:
-      test: "/usr/bin/mysql --user=user --password=pwd --execute \"SHOW DATABASES;\""
+      test: "/usr/bin/mysql --user=${MYSQL_USR} --password=${MYSQL_PWD} --execute \"SHOW DATABASES;\""
       interval: 20s
       timeout: 5s
       retries: 10

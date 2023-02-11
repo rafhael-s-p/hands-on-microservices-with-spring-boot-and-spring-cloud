@@ -19,6 +19,9 @@ spec:
             value: WARN
           - name: RABBIT_ADDRESSES
             value: 172.17.0.1
+        envFrom:
+        - secretRef:
+            name: rabbitmq-zipkin-credentials
         resources:
           requests:
             memory: "300Mi"
