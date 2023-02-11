@@ -30,7 +30,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @SpringBootTest(
         webEnvironment=RANDOM_PORT,
         classes = {ProductCompositeServiceApplication.class, TestSecurityConfig.class },
-        properties = {"spring.main.allow-bean-definition-overriding=true", "spring.cloud.config.enabled=false"})
+        properties = {"spring.main.allow-bean-definition-overriding=true"})
 public class ProductCompositeServiceApplicationTests {
 
     private static final int PRODUCT_ID_OK = 1;
