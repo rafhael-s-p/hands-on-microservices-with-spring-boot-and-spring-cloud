@@ -1,19 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: product-composite
+  name: auth-server
 spec:
   selector:
     matchLabels:
-      app: product-composite
+      app: auth-server
   template:
     metadata:
       labels:
-        app: product-composite
+        app: auth-server
+        version: v2
     spec:
       containers:
-      - name: comp
-        image: hands-on/product-composite-service:v1
+      - name: auth-server
+        image: hands-on/auth-server:v2
         env:
         - name: SPRING_PROFILES_ACTIVE
           value: "docker,prod"

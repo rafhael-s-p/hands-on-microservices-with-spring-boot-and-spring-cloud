@@ -1,4 +1,5 @@
 server.port: 8443
+management.server.port: 8443
 
 server.ssl:
   key-store-type: PKCS12
