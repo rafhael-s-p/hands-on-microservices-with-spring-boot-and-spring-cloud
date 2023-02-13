@@ -10,6 +10,7 @@ spec:
     metadata:
       labels:
         app: recommendation
+        version: v1
     spec:
       containers:
       - name: rec

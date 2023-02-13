@@ -10,6 +10,7 @@ spec:
     metadata:
       labels:
         app: product
+        version: v1
     spec:
       containers:
       - name: pro

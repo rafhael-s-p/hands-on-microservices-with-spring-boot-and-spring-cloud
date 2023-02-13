@@ -182,6 +182,7 @@ services:
   # $ mongo
   mongodb:
     image: mongo:3.6.9
+    restart: always
     mem_limit: 350m
     networks:
       - my-network
@@ -200,6 +201,7 @@ services:
   # $ mysql -uroot -h127.0.0.1 -p
   mysql:
     image: mysql:5.7
+    restart: always
     mem_limit: 350m
     networks:
       - my-network
@@ -218,6 +220,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.7.8-management
+    restart: always
     mem_limit: 350m
     networks:
       - my-network
@@ -232,22 +235,6 @@ services:
       interval: 20s
       timeout: 5s
       retries: 10
-
-  zipkin:
-    image: openzipkin/zipkin:2.12.9
-    mem_limit: 512m
-    networks:
-      - my-network
-    environment:
-      - STORAGE_TYPE=mem
-      - RABBIT_ADDRESSES=rabbitmq
-      - RABBIT_USER=${RABBITMQ_USR}
-      - RABBIT_PASSWORD=${RABBITMQ_PWD}
-    ports:
-      - 9411:9411
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
 
 networks:
   my-network:
