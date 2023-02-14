@@ -36,6 +36,7 @@ dependencies {
 	implementation 'org.springframework.retry:spring-retry'
 
 	implementation 'com.nimbusds:nimbus-jose-jwt:6.7'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
