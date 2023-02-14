@@ -17,7 +17,7 @@ apply plugin: 'io.spring.dependency-management'
 
 group = 'com.studies.microservices.composite.product'
 version = '1.0.0-SNAPSHOT'
-sourceCompatibility = 1.8
+sourceCompatibility = 11
 
 ext {
 	springCloudVersion = "Hoxton.SR6"
