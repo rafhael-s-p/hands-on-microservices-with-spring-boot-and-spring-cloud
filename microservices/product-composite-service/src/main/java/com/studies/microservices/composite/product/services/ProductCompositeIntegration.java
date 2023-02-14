@@ -18,11 +18,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import com.studies.api.core.product.Product;
-import com.studies.api.core.product.ProductService;
+import com.studies.api.core.product.ProductResource;
 import com.studies.api.core.recommendation.Recommendation;
-import com.studies.api.core.recommendation.RecommendationService;
+import com.studies.api.core.recommendation.RecommendationResource;
 import com.studies.api.core.review.Review;
-import com.studies.api.core.review.ReviewService;
+import com.studies.api.core.review.ReviewResource;
 import com.studies.api.event.Event;
 import com.studies.util.exceptions.InvalidInputException;
 import com.studies.util.exceptions.NotFoundException;
@@ -38,7 +38,7 @@ import static com.studies.api.event.Event.Type.DELETE;
 
 @EnableBinding(ProductCompositeIntegration.MessageSources.class)
 @Component
-public class ProductCompositeIntegration implements ProductService, RecommendationService, ReviewService {
+public class ProductCompositeIntegration implements ProductResource, RecommendationResource, ReviewResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProductCompositeIntegration.class);
 

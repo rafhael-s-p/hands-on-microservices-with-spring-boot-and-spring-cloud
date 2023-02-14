@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @Api("REST API for composite product information.")
-public interface ProductCompositeService {
+public interface ProductCompositeResource {
 
     /**
      * Sample usage:

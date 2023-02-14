@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
 
-public interface ProductService {
+public interface ProductResource {
 
     Product createProduct(@RequestBody Product body);
 

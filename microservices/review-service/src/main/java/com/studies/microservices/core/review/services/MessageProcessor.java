@@ -7,7 +7,7 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.cloud.stream.messaging.Sink;
 import com.studies.api.core.review.Review;
-import com.studies.api.core.review.ReviewService;
+import com.studies.api.core.review.ReviewResource;
 import com.studies.api.event.Event;
 import com.studies.util.exceptions.EventProcessingException;
 
@@ -16,11 +16,11 @@ public class MessageProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(MessageProcessor.class);
 
-    private final ReviewService reviewService;
+    private final ReviewResource reviewResource;
 
     @Autowired
-    public MessageProcessor(ReviewService reviewService) {
-        this.reviewService = reviewService;
+    public MessageProcessor(ReviewResource reviewResource) {
+        this.reviewResource = reviewResource;
     }
 
     @StreamListener(target = Sink.INPUT)
@@ -33,13 +33,13 @@ public class MessageProcessor {
         case CREATE:
             Review review = event.getData();
             LOG.info("Create review with ID: {}/{}", review.getProductId(), review.getReviewId());
-            reviewService.createReview(review);
+            reviewResource.createReview(review);
             break;
 
         case DELETE:
             int productId = event.getKey();
             LOG.info("Delete reviews with ProductID: {}", productId);
-            reviewService.deleteReviews(productId);
+            reviewResource.deleteReviews(productId);
             break;
 
         default:

@@ -31,7 +31,7 @@ import static com.studies.api.event.Event.Type.DELETE;
 @SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
         "spring.data.mongodb.port: 0",
         "server.error.include-message=always"})
-public class RecommendationServiceApplicationTests {
+public class RecommendationResourceApplicationTests {
 
     @Autowired
     private WebTestClient client;

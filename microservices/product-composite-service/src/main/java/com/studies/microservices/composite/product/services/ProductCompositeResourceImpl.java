@@ -23,15 +23,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-public class ProductCompositeServiceImpl implements ProductCompositeService {
+public class ProductCompositeResourceImpl implements ProductCompositeResource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProductCompositeServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProductCompositeResourceImpl.class);
     private final SecurityContext nullSC = new SecurityContextImpl();
     private final ServiceUtil serviceUtil;
     private ProductCompositeIntegration integration;
 
     @Autowired
-    public ProductCompositeServiceImpl(ServiceUtil serviceUtil, ProductCompositeIntegration integration) {
+    public ProductCompositeResourceImpl(ServiceUtil serviceUtil, ProductCompositeIntegration integration) {
         this.serviceUtil = serviceUtil;
         this.integration = integration;
     }

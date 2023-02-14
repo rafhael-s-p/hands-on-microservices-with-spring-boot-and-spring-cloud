@@ -7,7 +7,7 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.cloud.stream.messaging.Sink;
 import com.studies.api.core.product.Product;
-import com.studies.api.core.product.ProductService;
+import com.studies.api.core.product.ProductResource;
 import com.studies.api.event.Event;
 import com.studies.util.exceptions.EventProcessingException;
 
@@ -16,11 +16,11 @@ public class MessageProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(MessageProcessor.class);
 
-    private final ProductService productService;
+    private final ProductResource productResource;
 
     @Autowired
-    public MessageProcessor(ProductService productService) {
-        this.productService = productService;
+    public MessageProcessor(ProductResource productResource) {
+        this.productResource = productResource;
     }
 
     @StreamListener(target = Sink.INPUT)
@@ -33,13 +33,13 @@ public class MessageProcessor {
         case CREATE:
             Product product = event.getData();
             LOG.info("Create product with ID: {}", product.getProductId());
-            productService.createProduct(product);
+            productResource.createProduct(product);
             break;
 
         case DELETE:
             int productId = event.getKey();
             LOG.info("Delete recommendations with ProductID: {}", productId);
-            productService.deleteProduct(productId);
+            productResource.deleteProduct(productId);
             break;
 
         default:

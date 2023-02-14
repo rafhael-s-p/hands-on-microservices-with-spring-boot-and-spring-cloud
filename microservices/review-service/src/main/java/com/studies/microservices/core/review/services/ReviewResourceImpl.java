@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Scheduler;
 import com.studies.api.core.review.Review;
-import com.studies.api.core.review.ReviewService;
+import com.studies.api.core.review.ReviewResource;
 import com.studies.microservices.core.review.persistence.ReviewEntity;
 import com.studies.util.exceptions.InvalidInputException;
 import com.studies.util.http.ServiceUtil;
@@ -21,9 +21,9 @@ import java.util.function.Supplier;
 import static java.util.logging.Level.FINE;
 
 @RestController
-public class ReviewServiceImpl implements ReviewService {
+public class ReviewResourceImpl implements ReviewResource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ReviewServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReviewResourceImpl.class);
 
     private final ReviewRepository repository;
 
@@ -34,7 +34,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final Scheduler scheduler;
 
     @Autowired
-    public ReviewServiceImpl(Scheduler scheduler, ReviewRepository repository, ReviewMapper mapper, ServiceUtil serviceUtil) {
+    public ReviewResourceImpl(Scheduler scheduler, ReviewRepository repository, ReviewMapper mapper, ServiceUtil serviceUtil) {
         this.scheduler = scheduler;
         this.repository = repository;
         this.mapper = mapper;

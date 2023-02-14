@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Flux;
 
-public interface RecommendationService {
+public interface RecommendationResource {
 
     Recommendation createRecommendation(@RequestBody Recommendation body);
 

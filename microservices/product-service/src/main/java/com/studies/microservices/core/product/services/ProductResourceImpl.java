@@ -8,7 +8,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import com.studies.api.core.product.Product;
-import com.studies.api.core.product.ProductService;
+import com.studies.api.core.product.ProductResource;
 import com.studies.microservices.core.product.persistence.ProductEntity;
 import com.studies.util.exceptions.InvalidInputException;
 import com.studies.util.exceptions.NotFoundException;
@@ -19,9 +19,9 @@ import java.util.Random;
 import static reactor.core.publisher.Mono.error;
 
 @RestController
-public class ProductServiceImpl implements ProductService {
+public class ProductResourceImpl implements ProductResource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProductServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProductResourceImpl.class);
 
     private final ProductRepository repository;
 
@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
     private final ServiceUtil serviceUtil;
 
     @Autowired
-    public ProductServiceImpl(ProductRepository repository, ProductMapper mapper, ServiceUtil serviceUtil) {
+    public ProductResourceImpl(ProductRepository repository, ProductMapper mapper, ServiceUtil serviceUtil) {
         this.repository = repository;
         this.mapper = mapper;
         this.serviceUtil = serviceUtil;

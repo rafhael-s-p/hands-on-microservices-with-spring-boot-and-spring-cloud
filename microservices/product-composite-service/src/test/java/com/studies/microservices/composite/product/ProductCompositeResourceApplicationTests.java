@@ -31,7 +31,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
         webEnvironment=RANDOM_PORT,
         classes = {ProductCompositeServiceApplication.class, TestSecurityConfig.class },
         properties = {"spring.main.allow-bean-definition-overriding=true"})
-public class ProductCompositeServiceApplicationTests {
+public class ProductCompositeResourceApplicationTests {
 
     private static final int PRODUCT_ID_OK = 1;
     private static final int PRODUCT_ID_NOT_FOUND = 2;

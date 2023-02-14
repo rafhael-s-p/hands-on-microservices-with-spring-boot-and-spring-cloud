@@ -31,7 +31,7 @@ import static com.studies.api.event.Event.Type.DELETE;
         "logging.level.com.studies=DEBUG",
         "spring.datasource.url=jdbc:h2:mem:review-db",
         "server.error.include-message=always"})
-public class ReviewServiceApplicationTests {
+public class ReviewResourceApplicationTests {
 
     @Autowired
     private WebTestClient client;

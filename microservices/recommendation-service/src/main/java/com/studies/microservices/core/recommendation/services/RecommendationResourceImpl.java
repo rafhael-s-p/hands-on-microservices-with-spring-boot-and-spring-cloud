@@ -8,16 +8,16 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import com.studies.api.core.recommendation.Recommendation;
-import com.studies.api.core.recommendation.RecommendationService;
+import com.studies.api.core.recommendation.RecommendationResource;
 import com.studies.microservices.core.recommendation.persistence.RecommendationEntity;
 import com.studies.microservices.core.recommendation.persistence.RecommendationRepository;
 import com.studies.util.exceptions.InvalidInputException;
 import com.studies.util.http.ServiceUtil;
 
 @RestController
-public class RecommendationServiceImpl implements RecommendationService {
+public class RecommendationResourceImpl implements RecommendationResource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RecommendationServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RecommendationResourceImpl.class);
 
     private final RecommendationRepository repository;
 
@@ -26,7 +26,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final ServiceUtil serviceUtil;
 
     @Autowired
-    public RecommendationServiceImpl(RecommendationRepository repository, RecommendationMapper mapper, ServiceUtil serviceUtil) {
+    public RecommendationResourceImpl(RecommendationRepository repository, RecommendationMapper mapper, ServiceUtil serviceUtil) {
         this.repository = repository;
         this.mapper = mapper;
         this.serviceUtil = serviceUtil;
