@@ -92,13 +92,13 @@ resilience4j.circuitbreaker:
       ringBufferSizeInHalfOpenState: 3
       automaticTransitionFromOpenToHalfOpenEnabled: true
       ignoreExceptions:
-        - se.magnus.util.exceptions.InvalidInputException
-        - se.magnus.util.exceptions.NotFoundException
+        - com.studies.util.exceptions.InvalidInputException
+        - com.studies.util.exceptions.NotFoundException
 
 logging:
   level:
     root: INFO
-    se.magnus: DEBUG
+    com.studies: DEBUG
     org.springframework.web.server.adapter.HttpWebHandlerAdapter: TRACE
 
 ---
@@ -127,5 +127,5 @@ spring.profiles: prod
 logging:
   level:
     root: WARN
-    se.magnus: WARN
+    com.studies: WARN
     org.springframework.web.server.adapter.HttpWebHandlerAdapter: WARN

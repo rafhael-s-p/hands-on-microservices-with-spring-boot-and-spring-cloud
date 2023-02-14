@@ -29,7 +29,7 @@ spring.cloud.stream.kafka.bindings.input.consumer:
 logging:
   level:
     root: INFO
-    se.magnus: DEBUG
+    com.studies: DEBUG
     org.springframework.data.mongodb.core.MongoTemplate: DEBUG
 
 ---
@@ -61,5 +61,5 @@ spring.data.mongodb.host: 172.17.0.1
 logging:
   level:
     root: WARN
-    se.magnus: WARN
+    com.studies: WARN
     org.springframework.data.mongodb.core.MongoTemplate: WARN
