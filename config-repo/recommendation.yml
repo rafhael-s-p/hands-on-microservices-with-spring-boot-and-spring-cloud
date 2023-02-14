@@ -1,6 +1,8 @@
 server.port: 7002
 server.error.include-message: always
 
+spring.application.name: recommendation
+
 spring.data.mongodb:
   host: localhost
   port: 27017
